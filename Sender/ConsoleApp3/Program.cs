@@ -1,4 +1,5 @@
-﻿using RabbitMQ.Client;
+﻿using Newtonsoft.Json;
+using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace ConsoleApp3
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
+                
                 channel.QueueDeclare(queue: "msgKey",
                                      durable: false,
                                      exclusive: false,
@@ -24,13 +26,18 @@ namespace ConsoleApp3
                                      arguments: null);
 
                 Console.WriteLine("Enter message to send");
-                var msg = Console.ReadLine();
-                var body = Encoding.UTF8.GetBytes(msg);
+
+                Customer customer = new Customer();
+                customer.CustomerName = Console.ReadLine();
+
+                String jsonified = JsonConvert.SerializeObject(customer);
+              
+                var body = Encoding.UTF8.GetBytes(jsonified);
                 channel.BasicPublish(exchange: "",
                                      routingKey: "msgKey",
                                      basicProperties: null,
                                      body: body);
-                Console.WriteLine(" [x] Sent {0}", msg);
+                Console.WriteLine(" [x] Sent {0}", jsonified);
             }
 
             Console.WriteLine(" Press [enter] to exit.");
