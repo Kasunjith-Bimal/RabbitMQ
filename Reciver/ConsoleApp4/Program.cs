@@ -1,4 +1,5 @@
-﻿using RabbitMQ.Client;
+﻿using Newtonsoft.Json;
+using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace ConsoleApp4
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
+
                 channel.QueueDeclare(queue: "msgKey",
                                      durable: false,
                                      exclusive: false,
@@ -29,7 +31,12 @@ namespace ConsoleApp4
                 {
                     var body = ea.Body;
                     var message = Encoding.UTF8.GetString(body);
+                   
+                    Customer customer = JsonConvert.DeserializeObject<Customer>(message);
                     Console.WriteLine(" [x] Received {0}", message);
+                    Console.WriteLine("[y] CustomerName" + customer.CustomerName);
+
+
                 };
                 channel.BasicConsume(queue: "msgKey",
                                      autoAck: true,
